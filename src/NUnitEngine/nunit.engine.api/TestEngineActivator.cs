@@ -48,6 +48,31 @@ namespace NUnit.Engine
 
         #region Public Methods
 
+#if NETSTANDARD1_3
+        /// <summary>
+        /// Create an instance of the test engine.
+        /// </summary>
+        /// <remarks>If private copy is false, the search order is the NUnit install directory for the current user, then
+        /// the install directory for the local machine and finally the current AppDomain's ApplicationBase.</remarks>
+        /// <exception cref="NUnitEngineNotFoundException">Thrown when the test engine is not found</exception>
+        /// <exception cref="NUnitEngineException">Thrown when the ITestEngine is not found in the test engine</exception>
+        /// <returns>An <see cref="NUnit.Engine.ITestEngine"/></returns>
+        public static ITestEngine CreateInstance()
+        {
+            var assemblyName = Path.GetFileNameWithoutExtension(DefaultAssemblyName);
+            Assembly engine = Assembly.Load(new AssemblyName(assemblyName));
+            if (engine == null)
+            {
+                throw new NUnitEngineNotFoundException();
+            }
+            TypeInfo testEngineType = engine.DefinedTypes.FirstOrDefault(t => t.FullName == DefaultTypeName);
+            if (engine == null)
+            {
+                throw new NUnitEngineException("Could not find type " + DefaultTypeName + " in the engine");
+            }
+            return (ITestEngine)Activator.CreateInstance(testEngineType.AsType());
+        }
+#else
         /// <summary>
         /// Create an instance of the test engine.
         /// </summary>
@@ -76,18 +101,12 @@ namespace NUnit.Engine
         {
             try
             {
-#if NETSTANDARD1_3
-                var assemblyName = Path.GetFileNameWithoutExtension(DefaultAssemblyName);
-                Assembly engine = Assembly.Load(new AssemblyName(assemblyName));
-                return (ITestEngine)CreateObject(DefaultTypeName, engine);
-#else
                 Assembly engine = FindNewestEngine(minVersion, privateCopy);
                 if (engine == null)
                 {
                     throw new NUnitEngineNotFoundException(minVersion);
                 }
                 return (ITestEngine)AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(engine.CodeBase, DefaultTypeName);
-#endif
             }
             catch (NUnitEngineNotFoundException)
             {
@@ -98,22 +117,13 @@ namespace NUnit.Engine
                 throw new Exception("Failed to load the test engine", ex);
             }
         }
+#endif
 
         #endregion
 
         #region Private Methods
 
-#if NETSTANDARD1_3
-        private static object CreateObject(string typeName, Assembly assembly, params object[] args)
-        {
-            var typeinfo = assembly.DefinedTypes.FirstOrDefault(t => t.FullName == typeName);
-            if (typeinfo == null)
-            {
-                return null;
-            }
-            return Activator.CreateInstance(typeinfo.AsType(), args);
-        }
-#else
+#if !NETSTANDARD1_3
         private static Assembly FindNewestEngine(Version minVersion, bool privateCopy)
         {
             var newestVersionFound = new Version();
