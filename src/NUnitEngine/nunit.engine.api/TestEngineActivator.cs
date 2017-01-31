@@ -25,7 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+#if NETSTANDARD1_3
+using System.Linq;
+#else
 using Microsoft.Win32;
+#endif
 
 namespace NUnit.Engine
 {
@@ -72,12 +76,18 @@ namespace NUnit.Engine
         {
             try
             {
+#if NETSTANDARD1_3
+                var assemblyName = Path.GetFileNameWithoutExtension(DefaultAssemblyName);
+                Assembly engine = Assembly.Load(new AssemblyName(assemblyName));
+                return (ITestEngine)CreateObject(DefaultTypeName, engine);
+#else
                 Assembly engine = FindNewestEngine(minVersion, privateCopy);
                 if (engine == null)
                 {
                     throw new NUnitEngineNotFoundException(minVersion);
                 }
                 return (ITestEngine)AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(engine.CodeBase, DefaultTypeName);
+#endif
             }
             catch (NUnitEngineNotFoundException)
             {
@@ -93,6 +103,17 @@ namespace NUnit.Engine
 
         #region Private Methods
 
+#if NETSTANDARD1_3
+        private static object CreateObject(string typeName, Assembly assembly, params object[] args)
+        {
+            var typeinfo = assembly.DefinedTypes.FirstOrDefault(t => t.FullName == typeName);
+            if (typeinfo == null)
+            {
+                return null;
+            }
+            return Activator.CreateInstance(typeinfo.AsType(), args);
+        }
+#else
         private static Assembly FindNewestEngine(Version minVersion, bool privateCopy)
         {
             var newestVersionFound = new Version();
@@ -218,6 +239,7 @@ namespace NUnit.Engine
             catch (Exception) { }
             return null;
         }
+#endif
 
         #endregion
     }

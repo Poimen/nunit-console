@@ -40,13 +40,21 @@ namespace NUnit.Engine.Extensibility
         /// <param name="reference">An AssemblyName referring to the possible test framework.</param>
         bool IsSupportedTestFramework(AssemblyName reference);
 
+#if NETSTANDARD1_3
+        /// <summary>
+        /// Gets a driver for a given test assembly and a framework
+        /// which the assembly is already known to reference.
+        /// </summary>
+        /// <param name="reference">An AssemblyName referring to the test framework.</param>
+        IFrameworkDriver GetDriver(AssemblyName reference);
+#else        
         /// <summary>
         /// Gets a driver for a given test assembly and a framework
         /// which the assembly is already known to reference.
         /// </summary>
         /// <param name="domain">The domain in which the assembly will be loaded</param>
         /// <param name="reference">An AssemblyName referring to the test framework.</param>
-        /// <returns></returns>
         IFrameworkDriver GetDriver(AppDomain domain, AssemblyName reference);
+#endif
     }
 }
