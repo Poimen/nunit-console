@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -71,18 +70,21 @@ namespace NUnit.Engine.Internal
             try
             {
                 XmlDocument doc = new XmlDocument();
-                doc.Load(_settingsFile);
+                using (var stream = new FileStream(_settingsFile, FileMode.Open, FileAccess.Read))
+                {
+                    doc.Load(stream);
+                }
 
                 foreach (XmlElement element in doc.DocumentElement["Settings"].ChildNodes)
                 {
                     if (element.Name != "Setting")
-                        throw new ApplicationException("Unknown element in settings file: " + element.Name);
+                        throw new Exception("Unknown element in settings file: " + element.Name);
 
                     if (!element.HasAttribute("name"))
-                        throw new ApplicationException("Setting must have 'name' attribute");
+                        throw new Exception("Setting must have 'name' attribute");
 
                     if (!element.HasAttribute("value"))
-                        throw new ApplicationException("Setting must have 'value' attribute");
+                        throw new Exception("Setting must have 'value' attribute");
 
                     SaveSetting(element.GetAttribute("name"), element.GetAttribute("value"));
                 }

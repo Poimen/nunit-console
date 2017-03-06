@@ -21,6 +21,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+#if !NETSTANDARD1_3
 using System;
 using NUnit.Engine.Internal;
 using NUnit.Engine.Services;
@@ -266,7 +267,7 @@ namespace NUnit.Engine.Runners
 
 #endregion
 
-#region Helper Methods
+        #region Helper Methods
 
         private void CreateAgentAndRunner()
         {
@@ -314,6 +315,7 @@ namespace NUnit.Engine.Runners
             return new TestEngineResult(suite);
         }
 
-#endregion
+        #endregion
     }
 }
+#endif

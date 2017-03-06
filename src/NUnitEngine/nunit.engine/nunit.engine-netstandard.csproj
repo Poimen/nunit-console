@@ -1,26 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{372A3447-D657-40FF-A089-77C19FEC30C8}</ProjectGuid>
+    <ProjectGuid>{1FC89619-05EE-410D-A4DF-8561A6485EC6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NUnit.Engine</RootNamespace>
     <AssemblyName>nunit.engine</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <IntermediateOutputPath>obj\$(Configuration)\netstandard\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NUNIT_ENGINE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NUNIT_ENGINE;NETSTANDARD1_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -29,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NUNIT_ENGINE</DefineConstants>
+    <DefineConstants>TRACE;NUNIT_ENGINE;NETSTANDARD1_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -41,18 +42,6 @@
     <AssemblyOriginatorKeyFile>..\..\nunit.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.6.1\lib\net20\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Remoting" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
@@ -60,17 +49,13 @@
       <Link>Properties\EngineVersion.cs</Link>
     </Compile>
     <Compile Include="Drivers\NotRunnableFrameworkDriver.cs" />
-    <Compile Include="Drivers\NUnit2DriverFactory.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Drivers\NUnit2DriverFactory.cs" />
     <Compile Include="Drivers\NUnit3DriverFactory.cs" />
     <Compile Include="Drivers\NUnit3FrameworkDriver.cs" />
     <Compile Include="EngineExtensionPoints.cs" />
     <Compile Include="EnginePackageSettings.cs" />
     <Compile Include="Extensibility\ExtensionNode.cs" />
-    <Compile Include="Extensibility\ExtensionPoint.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Extensibility\ExtensionPoint.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="IDriverService.cs" />
     <Compile Include="InternalEnginePackageSettings.cs" />
@@ -92,9 +77,7 @@
     <Compile Include="Internal\NUnitConfiguration.cs" />
     <Compile Include="Internal\PathUtils.cs" />
     <Compile Include="Internal\ProcessModel.cs" />
-    <Compile Include="Internal\ResultHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Internal\ResultHelper.cs" />
     <Compile Include="Internal\ServerBase.cs" />
     <Compile Include="Internal\ServerUtilities.cs" />
     <Compile Include="Internal\SettingsGroup.cs" />
@@ -147,7 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\nunit.engine.api\nunit.engine.api.csproj">
-      <Project>{775FAD50-3623-4922-97C4-DFB29A8BE4C7}</Project>
+      <Project>{70C2B005-311D-4DDC-BAAB-188ABF6C4944}</Project>
       <Name>nunit.engine.api</Name>
     </ProjectReference>
   </ItemGroup>
@@ -160,14 +143,18 @@
     <None Include="..\..\nunit.snk">
       <Link>nunit.snk</Link>
     </None>
+    <None Include="nunit.engine-netstandard.project.json" />
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <NuGetTargetMoniker>.NETStandard,Version=v1.3</NuGetTargetMoniker>
+  </PropertyGroup>
 </Project>

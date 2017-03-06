@@ -31,7 +31,11 @@ namespace NUnit.Engine.Agents
     /// loading and running tests in a particular
     /// context such as an AppDomain or Process.
     /// </summary>
-    public abstract class TestAgent : MarshalByRefObject, ITestAgent, IDisposable
+    public abstract class TestAgent :
+#if !NETSTANDARD1_3
+        MarshalByRefObject,
+#endif
+        ITestAgent, IDisposable
     {
         #region Private Fields
 
@@ -133,6 +137,8 @@ namespace NUnit.Engine.Agents
         }
         #endregion
 
+#if !NETSTANDARD1_3
+
         #region InitializeLifeTimeService
         /// <summary>
         /// Overridden to cause object to live indefinitely
@@ -142,5 +148,6 @@ namespace NUnit.Engine.Agents
             return null;
         }
         #endregion
+#endif
     }
 }

@@ -42,6 +42,16 @@ namespace NUnit.Engine.Services
 
         #region IDriverService Members
 
+#if NETSTANDARD1_3
+        /// <summary>
+        /// Get a driver suitable for use with a particular test assembly.
+        /// </summary>
+        /// <param name="assemblyPath">The full path to the test assembly</param>
+        /// <param name="targetFramework">The value of any TargetFrameworkAttribute on the assembly, or null</param>
+        /// <param name="skipNonTestAssemblies">True if non-test assemblies should simply be skipped rather than reporting an error</param>
+        /// <returns></returns>
+        public IFrameworkDriver GetDriver(string assemblyPath, string targetFramework, bool skipNonTestAssemblies)
+#else
         /// <summary>
         /// Get a driver suitable for use with a particular test assembly.
         /// </summary>
@@ -51,6 +61,7 @@ namespace NUnit.Engine.Services
         /// <param name="skipNonTestAssemblies">True if non-test assemblies should simply be skipped rather than reporting an error</param>
         /// <returns></returns>
         public IFrameworkDriver GetDriver(AppDomain domain, string assemblyPath, string targetFramework, bool skipNonTestAssemblies)
+#endif
         {
             if (!File.Exists(assemblyPath))
                 return new InvalidAssemblyFrameworkDriver(assemblyPath, "File not found: " + assemblyPath);
@@ -85,7 +96,11 @@ namespace NUnit.Engine.Services
                     foreach (var reference in references)
                     {
                         if (factory.IsSupportedTestFramework(reference))
+#if NETSTANDARD1_3
+                            return factory.GetDriver(reference);
+#else
                             return factory.GetDriver(domain, reference);
+#endif
                     }
                 }
             }
@@ -101,9 +116,9 @@ namespace NUnit.Engine.Services
                                                                               "Either assembly contains no tests or proper test driver has not been found.", assemblyPath));
         }
 
-        #endregion
+#endregion
 
-        #region Service Overrides
+#region Service Overrides
 
         public override void StartService()
         {
@@ -117,9 +132,11 @@ namespace NUnit.Engine.Services
                     foreach (IDriverFactory factory in extensionService.GetExtensions<IDriverFactory>())
                         _factories.Add(factory);
 
+#if !NETSTANDARD1_3
                     var node = extensionService.GetExtensionNode("/NUnit/Engine/NUnitV2Driver");
                     if (node != null)
                         _factories.Add(new NUnit2DriverFactory(node));
+#endif
                 }
 
                 _factories.Add(new NUnit3DriverFactory());
@@ -133,6 +150,6 @@ namespace NUnit.Engine.Services
             }
         }
 
-        #endregion
+#endregion
     }
 }

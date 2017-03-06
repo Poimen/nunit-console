@@ -41,6 +41,20 @@ namespace NUnit.Engine.Drivers
             return reference.Name == NUNIT_FRAMEWORK && reference.Version.Major == 3;
         }
 
+#if NETSTANDARD1_3
+        /// <summary>
+        /// Gets a driver for a given test assembly and a framework
+        /// which the assembly is already known to reference.
+        /// </summary>
+        /// <param name="reference">An AssemblyName referring to the test framework.</param>
+        /// <returns></returns>
+        public IFrameworkDriver GetDriver(AssemblyName reference)
+        {
+            Guard.ArgumentValid(IsSupportedTestFramework(reference), "Invalid framework", "reference");
+
+            return new NUnit3FrameworkDriver();
+        }
+#else
         /// <summary>
         /// Gets a driver for a given test assembly and a framework
         /// which the assembly is already known to reference.
@@ -54,5 +68,6 @@ namespace NUnit.Engine.Drivers
 
             return new NUnit3FrameworkDriver(domain);
         }
+#endif
     }
 }

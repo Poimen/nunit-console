@@ -35,10 +35,13 @@ namespace NUnit.Engine.Runners
     public abstract class DirectTestRunner : AbstractTestRunner
     {
         private readonly List<IFrameworkDriver> _drivers = new List<IFrameworkDriver>();
+#if !NETSTANDARD1_3
         private ProvidedPathsAssemblyResolver _assemblyResolver;
+#endif
 
         public DirectTestRunner(IServiceLocator services, TestPackage package) : base(services, package)
         {
+#if !NETSTANDARD1_3
             // Bypass the resolver if not in the default AppDomain. This prevents trying to use the resolver within
             // NUnit's own automated tests (in a test AppDomain) which does not make sense anyway.
             if (AppDomain.CurrentDomain.IsDefaultAppDomain())
@@ -46,11 +49,14 @@ namespace NUnit.Engine.Runners
                 _assemblyResolver = new ProvidedPathsAssemblyResolver();
                 _assemblyResolver.Install();
             }
+#endif
         }
 
         #region Properties
 
+#if !NETSTANDARD1_3
         protected AppDomain TestDomain { get; set; }
+#endif
 
         #endregion
 
@@ -96,6 +102,7 @@ namespace NUnit.Engine.Runners
             {
                 var testFile = subPackage.FullName;
 
+#if !NETSTANDARD1_3
                 if (_assemblyResolver != null && !TestDomain.IsDefaultAppDomain()
                     && subPackage.GetSetting(InternalEnginePackageSettings.ImageRequiresDefaultAppDomainAssemblyResolver, false))
                 {
@@ -103,11 +110,16 @@ namespace NUnit.Engine.Runners
                     // checks to see if the path is already present.
                     _assemblyResolver.AddPathFromFile(testFile);
                 }
+#endif
 
                 string targetFramework = subPackage.GetSetting(InternalEnginePackageSettings.ImageTargetFrameworkName, (string)null);
                 bool skipNonTestAssemblies = subPackage.GetSetting(EnginePackageSettings.SkipNonTestAssemblies, false);
-                
+
+#if NETSTANDARD1_3
+                IFrameworkDriver driver = driverService.GetDriver(testFile, targetFramework, skipNonTestAssemblies);
+#else
                 IFrameworkDriver driver = driverService.GetDriver(TestDomain, testFile, targetFramework, skipNonTestAssemblies);
+#endif
                 driver.ID = TestPackage.ID;
                 result.Add(driver.Load(testFile, subPackage.Settings));
                 _drivers.Add(driver);
@@ -154,6 +166,7 @@ namespace NUnit.Engine.Runners
                 result.Add(driver.Run(listener, filter.Text));
             }
 
+#if !NETSTANDARD1_3
             if (_assemblyResolver != null)
             {
                 var packages = TestPackage.SubPackages;
@@ -164,6 +177,7 @@ namespace NUnit.Engine.Runners
                 foreach (var package in packages)
                     _assemblyResolver.RemovePathFromFile(package.FullName);
             }
+#endif
 
             return result;
         }

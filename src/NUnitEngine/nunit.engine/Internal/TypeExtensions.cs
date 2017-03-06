@@ -1,5 +1,5 @@
 ﻿// ***********************************************************************
-// Copyright (c) 2010 Charlie Poole
+// Copyright (c) 2017 Charlie Poole
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -23,41 +23,15 @@
 
 #if !NETSTANDARD1_3
 using System;
-using System.Web.UI;
 
-namespace NUnit.Engine
+namespace NUnit.Engine.Internal
 {
-    public class CallbackHandler : MarshalByRefObject, ICallbackEventHandler
+    public static class TypeExtensions
     {
-        public string Result { get; private set; }
-
-        public virtual void ReportProgress(string report)
+        public static Type GetTypeInfo(this Type type)
         {
+            return type;
         }
-
-        #region MarshalByRefObject Overrides
-
-        public override object InitializeLifetimeService()
-        {
-            return null;
-        }
-
-        #endregion
-
-        #region ICallbackEventHandler Members
-
-        public string GetCallbackResult()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RaiseCallbackEvent(string eventArgument)
-        {
-            Result = eventArgument;
-            ReportProgress(eventArgument);
-        }
-
-        #endregion
     }
 }
 #endif

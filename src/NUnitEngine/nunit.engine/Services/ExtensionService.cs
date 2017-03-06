@@ -40,7 +40,7 @@ namespace NUnit.Engine.Services
     public class ExtensionService : Service, IExtensionService
     {
         static Logger log = InternalTrace.GetLogger(typeof(ExtensionService));
-        static readonly Version ENGINE_VERSION = typeof(TestEngine).Assembly.GetName().Version;
+        static readonly Version ENGINE_VERSION = typeof(TestEngine).GetTypeInfo().Assembly.GetName().Version;
 
         private List<ExtensionPoint> _extensionPoints = new List<ExtensionPoint>();
         private Dictionary<string, ExtensionPoint> _pathIndex = new Dictionary<string, ExtensionPoint>();
@@ -171,8 +171,8 @@ namespace NUnit.Engine.Services
         {
             try
             {
-                var thisAssembly = Assembly.GetExecutingAssembly();
-                var apiAssembly = typeof(ITestEngine).Assembly;
+                var thisAssembly = typeof(ExtensionService).GetTypeInfo().Assembly;
+                var apiAssembly = typeof(ITestEngine).GetTypeInfo().Assembly;
 
                 FindExtensionPoints(thisAssembly);
                 FindExtensionPoints(apiAssembly);
@@ -230,7 +230,7 @@ namespace NUnit.Engine.Services
 
             foreach (Type type in assembly.GetExportedTypes())
             {
-                foreach (TypeExtensionPointAttribute attr in type.GetCustomAttributes(typeof(TypeExtensionPointAttribute), false))
+                foreach (TypeExtensionPointAttribute attr in type.GetTypeInfo().GetCustomAttributes(typeof(TypeExtensionPointAttribute), false))
                 {
                     string path = attr.Path ?? "/NUnit/Engine/TypeExtensions/" + type.Name;
 
@@ -340,7 +340,8 @@ namespace NUnit.Engine.Services
         {
             log.Info("Processing file " + fileName);
 
-            using (var rdr = new StreamReader(fileName))
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+            using (var rdr = new StreamReader(stream))
             {
                 while (!rdr.EndOfStream)
                 {

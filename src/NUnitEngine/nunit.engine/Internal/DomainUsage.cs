@@ -21,6 +21,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+#if !NETSTANDARD1_3
 namespace NUnit.Engine.Internal
 {
     /// <summary>
@@ -50,3 +51,4 @@ namespace NUnit.Engine.Internal
         Multiple
     }
 }
+#endif

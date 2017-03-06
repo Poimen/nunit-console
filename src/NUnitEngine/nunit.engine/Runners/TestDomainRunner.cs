@@ -21,6 +21,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+#if !NETSTANDARD1_3
 using NUnit.Engine.Services;
 
 namespace NUnit.Engine.Runners
@@ -62,3 +63,4 @@ namespace NUnit.Engine.Runners
         #endregion
     }
 }
+#endif

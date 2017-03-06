@@ -32,6 +32,15 @@ namespace NUnit.Engine
     /// </summary>
     public interface IDriverService
     {
+#if NETSTANDARD1_3
+        /// <summary>
+        /// Get a driver suitable for loading and running tests in the specified assembly.
+        /// </summary>
+        /// <param name="assemblyPath">The path to the test assembly</param>
+        /// <param name="targetFramework">The value of any TargetFrameworkAttribute on the assembly, or null</param>
+        /// <returns></returns>
+        IFrameworkDriver GetDriver(string assemblyPath, string targetFramework, bool skipNonTestAssemblies);
+#else
         /// <summary>
         /// Get a driver suitable for loading and running tests in the specified assembly.
         /// </summary>
@@ -40,5 +49,6 @@ namespace NUnit.Engine
         /// <param name="targetFramework">The value of any TargetFrameworkAttribute on the assembly, or null</param>
         /// <returns></returns>
         IFrameworkDriver GetDriver(AppDomain domain, string assemblyPath, string targetFramework, bool skipNonTestAssemblies);
+#endif
     }
 }

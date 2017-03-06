@@ -91,16 +91,18 @@ namespace NUnit.Engine
             }
 
             Services.Add(new SettingsService(true));
-            Services.Add(new DomainManager());
             Services.Add(new ExtensionService());
             Services.Add(new DriverService());
             Services.Add(new RecentFilesService());
             Services.Add(new ProjectService());
-            Services.Add(new RuntimeFrameworkService());
             Services.Add(new DefaultTestRunnerFactory());
-            Services.Add(new TestAgency());
             Services.Add(new ResultService());
             Services.Add(new TestFilterService());
+#if !NETSTANDARD1_3
+            Services.Add(new DomainManager());
+            Services.Add(new RuntimeFrameworkService());
+            Services.Add(new TestAgency());
+#endif
 
             Services.ServiceManager.StartServices();
         }

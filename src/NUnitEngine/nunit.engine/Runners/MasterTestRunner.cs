@@ -297,7 +297,7 @@ namespace NUnit.Engine.Runners
                 var runtimeService = _services.GetService<IRuntimeFrameworkService>();
                 if (!runtimeService.IsAvailable(frameworkSetting))
                     throw new NUnitEngineException(string.Format("The requested framework {0} is unknown or not available.", frameworkSetting));
-
+#if !NETSTANDARD1_3
                 // If running in process, check requested framework is compatible
                 var processModel = TestPackage.GetSetting(EnginePackageSettings.ProcessModel, "Default").ToLower();
                 if (processModel == "single" || processModel == "inprocess")
@@ -308,6 +308,7 @@ namespace NUnit.Engine.Runners
                         throw new NUnitEngineException(string.Format(
                             "Cannot run {0} framework in process already running {1}.", frameworkSetting, currentFramework));
                 }
+#endif
             }
         }
 
@@ -363,7 +364,7 @@ namespace NUnit.Engine.Runners
             InsertFilterElement(result.Xml, filter);
             InsertCommandLineElement(result.Xml);
 
-            result.Xml.AddAttribute("engine-version", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            result.Xml.AddAttribute("engine-version", typeof(MasterTestRunner).GetTypeInfo().Assembly.GetName().Version.ToString());
             result.Xml.AddAttribute("clr-version", Environment.Version.ToString());
 
             double duration = (double)(Stopwatch.GetTimestamp() - startTicks) / Stopwatch.Frequency;

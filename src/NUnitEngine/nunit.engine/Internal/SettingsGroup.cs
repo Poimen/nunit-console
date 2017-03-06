@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -83,7 +82,6 @@ namespace NUnit.Engine.Internal
             }
             catch(Exception ex)
             {
-
                 log.Error("Unable to convert setting {0} to {1}", settingName, typeof(T).Name);
                 log.Error(ex.Message);
                 return defaultValue;
