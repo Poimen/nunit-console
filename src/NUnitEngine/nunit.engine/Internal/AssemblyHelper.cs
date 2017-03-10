@@ -32,7 +32,26 @@ namespace NUnit.Engine.Internal
     /// </summary>
     public static class AssemblyHelper
     {
-        #region GetDirectoryName
+#if NETSTANDARD1_3
+        static readonly string UriSchemeFile = "file";
+        static readonly string SchemeDelimiter = "://";
+#else
+        static readonly string UriSchemeFile = Uri.UriSchemeFile;
+        static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
+#endif
+
+        /// <summary>
+        /// Gets the currently executing assembly in an x-plat way
+        /// </summary>
+        /// <returns></returns>
+        public static Assembly GetExecutingAssembly()
+        {
+#if NETSTANDARD1_3
+            return typeof(AssemblyHelper).GetTypeInfo().Assembly;
+#else
+            return Assembly.GetExecutingAssembly();
+#endif
+        }
 
         /// <summary>
         /// Gets the path to the directory from which an assembly was loaded.
@@ -43,10 +62,6 @@ namespace NUnit.Engine.Internal
         {
             return Path.GetDirectoryName(GetAssemblyPath(assembly));
         }
-
-        #endregion
-
-        #region GetAssemblyPath
 
         /// <summary>
         /// Gets the path from which an assembly was loaded.
@@ -65,13 +80,9 @@ namespace NUnit.Engine.Internal
             return assembly.Location;
         }
 
-        #endregion
-
-        #region Helper Methods
-
         private static bool IsFileUri(string uri)
         {
-            return uri.ToLower().StartsWith(Uri.UriSchemeFile);
+            return uri.ToLower().StartsWith(UriSchemeFile);
         }
 
         /// <summary>
@@ -83,7 +94,7 @@ namespace NUnit.Engine.Internal
         public static string GetAssemblyPathFromCodeBase(string codeBase)
         {
             // Skip over the file:// part
-            int start = Uri.UriSchemeFile.Length + Uri.SchemeDelimiter.Length;
+            int start = UriSchemeFile.Length + SchemeDelimiter.Length;
 
             if (codeBase[start] == '/') // third slash means a local path
             {
@@ -100,7 +111,5 @@ namespace NUnit.Engine.Internal
 
             return codeBase.Substring(start);
         }
-
-        #endregion
     }
 }

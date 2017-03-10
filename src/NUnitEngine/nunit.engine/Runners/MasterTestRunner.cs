@@ -362,10 +362,16 @@ namespace NUnit.Engine.Runners
 
             // These are inserted in reverse order, since each is added as the first child.
             InsertFilterElement(result.Xml, filter);
+#if !NETSTANDARD1_3
             InsertCommandLineElement(result.Xml);
+#endif
 
             result.Xml.AddAttribute("engine-version", typeof(MasterTestRunner).GetTypeInfo().Assembly.GetName().Version.ToString());
+#if NETSTANDARD1_3
+            result.Xml.AddAttribute("clr-version", Microsoft.DotNet.InternalAbstractions.RuntimeEnvironment.GetRuntimeIdentifier());
+#else
             result.Xml.AddAttribute("clr-version", Environment.Version.ToString());
+#endif
 
             double duration = (double)(Stopwatch.GetTimestamp() - startTicks) / Stopwatch.Frequency;
             result.Xml.AddAttribute("start-time", XmlConvert.ToString(startTime, "u"));
@@ -397,6 +403,7 @@ namespace NUnit.Engine.Runners
             return testRun;
         }
 
+#if !NETSTANDARD1_3
         private static void InsertCommandLineElement(XmlNode resultNode)
         {
             var doc = resultNode.OwnerDocument;
@@ -412,6 +419,7 @@ namespace NUnit.Engine.Runners
             var cdata = doc.CreateCDataSection(Environment.CommandLine);
             cmd.AppendChild(cdata);
         }
+#endif
 
         private static void InsertFilterElement(XmlNode resultNode, TestFilter filter)
         {
@@ -434,6 +442,6 @@ namespace NUnit.Engine.Runners
             resultNode.InsertAfter(filterElement, null);
         }
 
-        #endregion
+#endregion
     }
 }

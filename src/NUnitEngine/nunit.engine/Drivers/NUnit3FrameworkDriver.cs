@@ -26,10 +26,165 @@ using System.IO;
 using System.Collections.Generic;
 using NUnit.Engine.Internal;
 using NUnit.Engine.Extensibility;
+#if NETSTANDARD1_3
+using System.Reflection;
+using System.Linq;
+#else
 using System.Runtime.Serialization;
+#endif
 
 namespace NUnit.Engine.Drivers
 {
+#if NETSTANDARD1_3
+    /// <summary>
+    /// NUnitFrameworkDriver is used by the test-runner to load and run
+    /// tests using the NUnit framework assembly.
+    /// </summary>
+    public class NUnit3FrameworkDriver : IFrameworkDriver
+    {
+        private const string LOAD_MESSAGE = "Method called without loading any assemblies";
+        const string INVALID_FRAMEWORK_MESSAGE = "Running tests against this version of the framework using this driver is not supported. Please update NUnit.Framework to the latest version.";
+
+        private const string CONTROLLER_TYPE = "NUnit.Framework.Api.FrameworkController";
+        private const string LOAD_METHOD = "LoadTests";
+        private const string EXPLORE_METHOD = "ExploreTests";
+        private const string COUNT_METHOD = "CountTests";
+        private const string RUN_METHOD = "RunTests";
+        private const string RUN_ASYNC_METHOD = "RunTests";
+        private const string STOP_RUN_METHOD = "StopRun";
+
+        private static readonly ILogger log = InternalTrace.GetLogger("NUnitFrameworkDriver");
+
+        Assembly _testAssembly;
+        Assembly _frameworkAssembly;
+        object _frameworkController;
+        Type _frameworkControllerType;
+
+        /// <summary>
+        /// An id prefix that will be passed to the test framework and used as part of the
+        /// test ids created.
+        /// </summary>
+        public string ID { get; set; }
+
+        public string Load(string testAssemblyPath, IDictionary<string, object> settings)
+        {
+            var idPrefix = string.IsNullOrEmpty(ID) ? "" : ID + "-";
+            
+            var assemblyPath = Path.GetFullPath(testAssemblyPath);
+            var testAssembly = LoadAssembly(assemblyPath);
+            var frameworkPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "nunit.framework.dll");
+            var framework = LoadAssembly(frameworkPath);
+
+            _testAssembly = testAssembly;
+            _frameworkAssembly = framework;
+
+            _frameworkController = CreateObject(CONTROLLER_TYPE, _testAssembly, idPrefix, settings);
+            if (_frameworkController == null)
+                throw new NUnitEngineException(INVALID_FRAMEWORK_MESSAGE);
+
+            _frameworkControllerType = _frameworkController.GetType();
+
+            log.Info("Loading {0} - see separate log file", _testAssembly.FullName);
+            return ExecuteMethod(LOAD_METHOD) as string;
+        }
+
+        /// <summary>
+        /// Counts the number of test cases for the loaded test assembly
+        /// </summary>
+        /// <param name="filter">The XML test filter</param>
+        /// <returns>The number of test cases</returns>
+        public int CountTestCases(string filter)
+        {
+            CheckLoadWasCalled();
+            object count = ExecuteMethod(COUNT_METHOD, filter);
+            return count != null ? (int)count : 0;
+        }
+
+        /// <summary>
+        /// Executes the tests in an assembly.
+        /// </summary>
+        /// <param name="callback">A callback that receives XML progress notices</param>
+        /// <param name="filter">A filter that controls which tests are executed</param>
+        /// <returns>An Xml string representing the result</returns>
+        public string Run(ITestEventListener listener, string filter)
+        {
+            CheckLoadWasCalled();
+            Action<string> callback = listener.OnTestEvent;
+            log.Info("Running {0} - see separate log file", _testAssembly.FullName);
+            return ExecuteMethod(RUN_METHOD, new[] { typeof(Action<string>), typeof(string) }, callback, filter) as string;
+        }
+
+        /// <summary>
+        /// Returns information about the tests in an assembly.
+        /// </summary>
+        /// <param name="filter">A filter indicating which tests to include</param>
+        /// <returns>An Xml string representing the tests</returns>
+        public string Explore(string filter)
+        {
+            CheckLoadWasCalled();
+
+            log.Info("Exploring {0} - see separate log file", _testAssembly.FullName);
+            return ExecuteMethod(EXPLORE_METHOD, filter) as string;
+        }
+
+        /// <summary>
+        /// Cancel the ongoing test run. If no  test is running, the call is ignored.
+        /// </summary>
+        /// <param name="force">If true, cancel any ongoing test threads, otherwise wait for them to complete.</param>
+        public void StopRun(bool force)
+        {
+            ExecuteMethod(STOP_RUN_METHOD, force);
+        }
+
+        #region Helper Methods
+
+        Assembly LoadAssembly(string filename)
+        {
+            var assemblyName = System.IO.Path.GetFileNameWithoutExtension(filename);
+            return Assembly.Load(new AssemblyName(assemblyName));
+        }
+
+        void CheckLoadWasCalled()
+        {
+            if (_frameworkController == null)
+                throw new InvalidOperationException(LOAD_MESSAGE);
+        }
+
+        object CreateObject(string typeName, params object[] args)
+        {
+            var typeinfo = _frameworkAssembly.DefinedTypes.FirstOrDefault(t => t.FullName == typeName);
+            if (typeinfo == null)
+            {
+                log.Error("Could not find type {0}", typeName);
+            }
+            return Activator.CreateInstance(typeinfo.AsType(), args);
+        }
+
+        object ExecuteMethod(string methodName, params object[] args)
+        {
+            //var method = _frameworkControllerType.GetMethod(methodName, BindingFlags.Public);
+            var method = _frameworkControllerType.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance);
+            return ExecuteMethod(method, args);
+        }
+
+        object ExecuteMethod(string methodName, Type[] ptypes, params object[] args)
+        {
+            var method = _frameworkControllerType.GetMethod(methodName, ptypes);
+            return ExecuteMethod(method, args);
+        }
+
+        object ExecuteMethod(MethodInfo method, params object[] args)
+        {
+            if (method == null)
+            {
+                throw new NUnitEngineException(INVALID_FRAMEWORK_MESSAGE);
+            }
+            return method.Invoke(_frameworkController, args);
+        }
+
+        #endregion
+    }
+#else
     /// <summary>
     /// NUnitFrameworkDriver is used by the test-runner to load and run
     /// tests using the NUnit framework assembly.
@@ -151,7 +306,7 @@ namespace NUnit.Engine.Drivers
             return handler.Result;
         }
 
-        #region Helper Methods
+    #region Helper Methods
 
         private void CheckLoadWasCalled()
         {
@@ -170,6 +325,7 @@ namespace NUnit.Engine.Drivers
 #endif
         }
 
-        #endregion
+    #endregion
     }
+#endif
 }

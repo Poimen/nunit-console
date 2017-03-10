@@ -129,9 +129,9 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\nunit.engine.api\nunit.engine.api.csproj">
+    <ProjectReference Include="..\nunit.engine.api\nunit.engine.api-netstandard.csproj">
       <Project>{70C2B005-311D-4DDC-BAAB-188ABF6C4944}</Project>
-      <Name>nunit.engine.api</Name>
+      <Name>nunit.engine.api-netstandard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -144,7 +144,6 @@
       <Link>nunit.snk</Link>
     </None>
     <None Include="nunit.engine-netstandard.project.json" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

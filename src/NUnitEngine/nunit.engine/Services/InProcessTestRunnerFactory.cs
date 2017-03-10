@@ -44,6 +44,9 @@ namespace NUnit.Engine.Services
         /// <returns>An ITestEngineRunner</returns>
         public virtual ITestEngineRunner MakeTestRunner(TestPackage package)
         {
+#if NETSTANDARD1_3
+        return new LocalTestRunner(ServiceContext, package);
+#else
             DomainUsage domainUsage = (DomainUsage)System.Enum.Parse(
                 typeof(DomainUsage),
                 package.GetSetting(EnginePackageSettings.DomainUsage, "Default"));
@@ -66,6 +69,7 @@ namespace NUnit.Engine.Services
                 case DomainUsage.Single:
                     return new TestDomainRunner(ServiceContext, package);
             }
+#endif
         }
 
         public virtual bool CanReuse(ITestEngineRunner runner, TestPackage package)

@@ -89,6 +89,9 @@ namespace NUnit.Engine.Services
 
             // TODO: What about bad extensions?
 
+#if NETSTANDARD1_3
+            return base.MakeTestRunner(package);
+#else
             ProcessModel processModel = GetTargetProcessModel(package);
 
             switch (processModel)
@@ -109,8 +112,10 @@ namespace NUnit.Engine.Services
                 case ProcessModel.InProcess:
                     return base.MakeTestRunner(package);
             }
+#endif
         }
 
+#if !NETSTANDARD1_3
         // TODO: Review this method once we have a gui - not used by console runner
         public override bool CanReuse(ITestEngineRunner runner, TestPackage package)
         {
@@ -127,6 +132,7 @@ namespace NUnit.Engine.Services
                     return base.CanReuse(runner, package);
             }
         }
+#endif
 
         #endregion
 

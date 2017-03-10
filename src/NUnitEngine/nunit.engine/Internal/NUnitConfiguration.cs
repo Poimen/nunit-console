@@ -44,7 +44,7 @@ namespace NUnit.Engine.Internal
             {
                 if (_engineDirectory == null)
                     _engineDirectory =
-                        AssemblyHelper.GetDirectoryName(Assembly.GetExecutingAssembly());
+                        AssemblyHelper.GetDirectoryName(AssemblyHelper.GetExecutingAssembly());
 
                 return _engineDirectory;
             }

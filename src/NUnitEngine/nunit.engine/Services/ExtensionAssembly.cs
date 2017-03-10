@@ -22,6 +22,7 @@
 // ***********************************************************************
 
 using Mono.Cecil;
+using NUnit.Engine.Internal;
 
 namespace NUnit.Engine.Services
 {
@@ -45,7 +46,7 @@ namespace NUnit.Engine.Services
                 {
                     var resolver = new DefaultAssemblyResolver();
                     resolver.AddSearchDirectory(System.IO.Path.GetDirectoryName(FilePath));
-                    resolver.AddSearchDirectory(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+                    resolver.AddSearchDirectory(System.IO.Path.GetDirectoryName(AssemblyHelper.GetExecutingAssembly().Location));
                     var parameters = new ReaderParameters() { AssemblyResolver = resolver };
 
                     _assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, parameters);

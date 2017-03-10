@@ -47,7 +47,7 @@ namespace NUnit.Engine.Services
         private static readonly PropertyInfo TargetFrameworkNameProperty =
             typeof(AppDomainSetup).GetProperty("TargetFrameworkName", BindingFlags.Public | BindingFlags.Instance);
 
-        #region Create and Unload Domains
+#region Create and Unload Domains
         /// <summary>
         /// Construct an application domain for running a test package
         /// </summary>
@@ -141,9 +141,9 @@ namespace NUnit.Engine.Services
             new DomainUnloader(domain).Unload();
         }
 
-        #endregion
+#endregion
 
-        #region Nested DomainUnloader Class
+#region Nested DomainUnloader Class
         class DomainUnloader
         {
             private Thread _unloadThread;
@@ -204,9 +204,9 @@ namespace NUnit.Engine.Services
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region Helper Methods
+#region Helper Methods
 
         /// <summary>
         /// Figure out the ApplicationBase for a package
@@ -370,7 +370,7 @@ namespace NUnit.Engine.Services
                 thread.Interrupt();
         }
 
-        #endregion
+#endregion
     }
 }
 #endif

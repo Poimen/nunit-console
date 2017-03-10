@@ -28,6 +28,7 @@ using System.Xml;
 
 namespace NUnit.Engine
 {
+#if !NETSTANDARD1_3
     public class RunTestsCallbackHandler : CallbackHandler
     {
         private ITestEventListener listener;
@@ -43,13 +44,14 @@ namespace NUnit.Engine
             listener.OnTestEvent(state);
         }
 
-        #region Nested NullListener class
+    #region Nested NullListener class
         class NullListener : ITestEventListener
         {
             public void OnTestEvent(string report)
             {
             }
         }
-        #endregion
+    #endregion
     }
+#endif
 }

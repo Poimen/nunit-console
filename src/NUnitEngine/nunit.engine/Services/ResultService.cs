@@ -68,7 +68,11 @@ namespace NUnit.Engine.Services
                 case "cases":
                     return new TestCaseResultWriter();
                 case "user":
+#if NETSTANDARD1_3
+                    throw new NUnitEngineException("User supplied result XML transformations are not supported in .NET Standard");
+#else
                     return new XmlTransformResultWriter(args);
+#endif
                 default:
                     foreach (var node in _extensionNodes)
                         foreach (var supported in node.GetValues("Format"))

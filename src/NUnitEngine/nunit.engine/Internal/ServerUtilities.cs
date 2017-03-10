@@ -56,7 +56,7 @@ namespace NUnit.Engine.Internal
                 new BinaryServerFormatterSinkProvider();
 
             // NOTE: TypeFilterLevel and "clientConnectionLimit" property don't exist in .NET 1.0.
-            Type typeFilterLevelType = typeof(object).Assembly.GetType("System.Runtime.Serialization.Formatters.TypeFilterLevel");
+            Type typeFilterLevelType = typeof(object).GetTypeInfo().Assembly.GetType("System.Runtime.Serialization.Formatters.TypeFilterLevel");
             if (typeFilterLevelType != null)
             {
                 PropertyInfo typeFilterLevelProperty = serverProvider.GetType().GetProperty("TypeFilterLevel");
