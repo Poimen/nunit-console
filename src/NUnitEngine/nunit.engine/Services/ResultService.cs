@@ -29,9 +29,13 @@ namespace NUnit.Engine.Services
 {
     public class ResultService : Service, IResultService
     {
-        private readonly string[] BUILT_IN_FORMATS = new string[] { "nunit3", "cases", "user" };
+#if !NETSTANDARD1_3
+        private readonly string[] BUILT_IN_FORMATS = new string[] { "nunit3", "cases" };
 
         private IEnumerable<ExtensionNode> _extensionNodes;
+#else
+        private readonly string[] BUILT_IN_FORMATS = new string[] { "nunit3", "cases", "user" };
+#endif
 
         private string[] _formats;
         public string[] Formats
@@ -42,10 +46,12 @@ namespace NUnit.Engine.Services
                 {
                     var formatList = new List<string>(BUILT_IN_FORMATS);
 
+#if !NETSTANDARD1_3
                     foreach (var node in _extensionNodes)
                         foreach (var format in node.GetValues("Format"))
                             formatList.Add(format);
- 
+#endif
+
                     _formats = formatList.ToArray();
                 }
 
@@ -74,11 +80,12 @@ namespace NUnit.Engine.Services
                     return new XmlTransformResultWriter(args);
 #endif
                 default:
+#if !NETSTANDARD1_3
                     foreach (var node in _extensionNodes)
                         foreach (var supported in node.GetValues("Format"))
                             if (supported == format)
                                 return node.ExtensionObject as IResultWriter;
-
+#endif
                     return null;
             }
         }
@@ -89,11 +96,13 @@ namespace NUnit.Engine.Services
         {
             try
             {
+#if !NETSTANDARD1_3
                 var extensionService = ServiceContext.GetService<ExtensionService>();
 
                 if (extensionService != null && extensionService.Status == ServiceStatus.Started)
                     _extensionNodes = extensionService.GetExtensionNodes<IResultWriter>();
-                
+#endif
+
                 // If there is no extension service, we start anyway using builtin writers
                 Status = ServiceStatus.Started;
             }

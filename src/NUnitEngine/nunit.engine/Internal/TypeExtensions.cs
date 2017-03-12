@@ -21,17 +21,28 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
-#if !NETSTANDARD1_3
 using System;
+using System.Reflection;
 
 namespace NUnit.Engine.Internal
 {
     public static class TypeExtensions
     {
+#if NETSTANDARD1_3
+        public static bool IsAssignableFrom(this Type type, Type other)
+        {
+            return other != null && type.GetTypeInfo().IsAssignableFrom(other.GetTypeInfo());
+        }
+
+        public static bool IsInstanceOfType(this Type type, object other)
+        {
+            return other != null && type.IsAssignableFrom(other.GetType());
+        }
+#else
         public static Type GetTypeInfo(this Type type)
         {
             return type;
         }
+#endif
     }
 }
-#endif

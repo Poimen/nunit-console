@@ -27,6 +27,7 @@ using System.IO;
 using System.Reflection;
 using NUnit.Engine.Internal;
 using NUnit.Engine.Services;
+using System.Runtime.InteropServices;
 
 namespace NUnit.Engine
 {
@@ -40,11 +41,15 @@ namespace NUnit.Engine
         public TestEngine()
         {
             Services = new ServiceContext();
+#if NETSTANDARD1_3
+            WorkDirectory = Environment.GetEnvironmentVariable(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "LocalAppData" : "Home");
+#else
             WorkDirectory = Environment.CurrentDirectory;
+#endif
             InternalTraceLevel = InternalTraceLevel.Default;
         }
 
-        #region Public Properties
+#region Public Properties
 
         public ServiceContext Services { get; private set; }
 
@@ -52,9 +57,9 @@ namespace NUnit.Engine
 
         public InternalTraceLevel InternalTraceLevel { get; set; }
 
-        #endregion
+#endregion
 
-        #region ITestEngine Members
+#region ITestEngine Members
 
         /// <summary>
         /// Access the public IServiceLocator, first initializing
@@ -91,14 +96,14 @@ namespace NUnit.Engine
             }
 
             Services.Add(new SettingsService(true));
-            Services.Add(new ExtensionService());
             Services.Add(new DriverService());
             Services.Add(new RecentFilesService());
-            Services.Add(new ProjectService());
             Services.Add(new DefaultTestRunnerFactory());
             Services.Add(new ResultService());
             Services.Add(new TestFilterService());
 #if !NETSTANDARD1_3
+            Services.Add(new ProjectService());
+            Services.Add(new ExtensionService());
             Services.Add(new DomainManager());
             Services.Add(new RuntimeFrameworkService());
             Services.Add(new TestAgency());
@@ -121,9 +126,9 @@ namespace NUnit.Engine
             return new Runners.MasterTestRunner(Services, package);
         }
 
-        #endregion
+#endregion
 
-        #region IDisposable Members
+#region IDisposable Members
 
         private bool _disposed = false;
 
@@ -145,6 +150,6 @@ namespace NUnit.Engine
             }
         }
 
-        #endregion
+#endregion
     }
 }

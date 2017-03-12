@@ -21,6 +21,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+#if !NETSTANDARD1_3
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Engine.Extensibility;
@@ -168,3 +169,4 @@ namespace NUnit.Engine.Services
         #endregion
     }
 }
+#endif

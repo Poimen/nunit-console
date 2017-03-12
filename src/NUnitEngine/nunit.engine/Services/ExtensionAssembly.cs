@@ -21,6 +21,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+#if !NETSTANDARD1_3
 using Mono.Cecil;
 using NUnit.Engine.Internal;
 
@@ -103,3 +104,4 @@ namespace NUnit.Engine.Services
         }
     }
 }
+#endif

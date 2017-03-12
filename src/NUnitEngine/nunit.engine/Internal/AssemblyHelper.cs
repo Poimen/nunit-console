@@ -53,6 +53,7 @@ namespace NUnit.Engine.Internal
 #endif
         }
 
+#if !NETSTANDARD1_3
         /// <summary>
         /// Gets the path to the directory from which an assembly was loaded.
         /// </summary>
@@ -79,6 +80,7 @@ namespace NUnit.Engine.Internal
 
             return assembly.Location;
         }
+#endif
 
         private static bool IsFileUri(string uri)
         {

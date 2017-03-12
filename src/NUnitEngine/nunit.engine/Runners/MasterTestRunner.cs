@@ -39,7 +39,9 @@ namespace NUnit.Engine.Runners
         private readonly ITestEngineRunner _engineRunner;
         private readonly IServiceLocator _services;
         private readonly IRuntimeFrameworkService _runtimeService;
+#if !NETSTANDARD1_3
         private readonly ExtensionService _extensionService;
+#endif
         private readonly IProjectService _projectService;
         private bool _disposed;
 
@@ -54,7 +56,9 @@ namespace NUnit.Engine.Runners
             // Get references to the services we use
             _projectService = _services.GetService<IProjectService>();
             _runtimeService = _services.GetService<IRuntimeFrameworkService>();
+#if !NETSTANDARD1_3
             _extensionService = _services.GetService<ExtensionService>();
+#endif
             _engineRunner = _services.GetService<ITestRunnerFactory>().MakeTestRunner(package);
 
             InitializePackage();
@@ -348,8 +352,10 @@ namespace NUnit.Engine.Runners
             var eventDispatcher = new TestEventDispatcher();
             if (listener != null)
                 eventDispatcher.Listeners.Add(listener);
+#if !NETSTANDARD1_3
             foreach (var extension in _extensionService.GetExtensions<ITestEventListener>())
                 eventDispatcher.Listeners.Add(extension);
+#endif
 
             IsTestRunning = true;
 

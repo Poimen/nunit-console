@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.Win32;
+using System.Runtime.InteropServices;
 
 namespace NUnit.Engine.Internal
 {
@@ -37,6 +38,7 @@ namespace NUnit.Engine.Internal
 
         #region EngineDirectory
 
+#if !NETSTANDARD1_3
         private static string _engineDirectory;
         public static string EngineDirectory
         {
@@ -49,6 +51,7 @@ namespace NUnit.Engine.Internal
                 return _engineDirectory;
             }
         }
+#endif
 
         #endregion
 
@@ -61,9 +64,12 @@ namespace NUnit.Engine.Internal
             {
                 if (_applicationDirectory == null)
                 {
-                    _applicationDirectory = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "NUnit");
+#if NETSTANDARD1_3
+                    var dir = Environment.GetEnvironmentVariable(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "LocalAppData" : "Home");
+#else
+                    var dir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+#endif
+                    _applicationDirectory = Path.Combine(dir, "NUnit");
                 }
 
                 return _applicationDirectory;
